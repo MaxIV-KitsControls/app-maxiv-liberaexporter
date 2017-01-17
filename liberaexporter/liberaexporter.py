@@ -2,64 +2,78 @@
 Prometheus exporter which sends Libera platform metrics to prometheus server.
 The prometheus server,however needs to be configured to poll it, e.g. "<hostname>:9110
 """
-
 from prometheus_client import start_http_server, Gauge
+import time, sys
 import pylibera
-import time
-import config
-#from config import gauges_temp_raf_list
-#import psutil
+import commands
+import config #Configuration file with the metric information 
 
-#host="127.0.0.1"
+def check_platformd():
+    """
+    Simple function checks if platform service is running and return 1 (For running) and 0 (Not running)
+    Used to set the platformd metric value
+    """
+    output = commands.getoutput('ps -A')
+    if 'libera-platform' not in output:
+        print("Platform is not running!")
+        return 0
+    else:
+        return 1
+
 
 def gather_data(period=1):
     """
-    The main loop that publishes metrics forever
+    Function which inits the metrics and runs the main loop that publishes metrics forever
     """
+    # INIT, prepare metric lists to be able to be used by Prometheus
 
-    #initiate raf node depending on raf boards
-    #for raf in ["raf3","raf4","raf5"]:
-    #    for tupl in config.gauges_temp_raf_list:
-    #        tupl[2]=tupl[2].format(raf)
-
-    #Create Dict Metrics
-    # raf_metrics = dict((name, Gauge("libera_{0}".format(name), desc))
-    #     #Later on we can have labels according to each raf module i.e [raf3,ra4,raf5]
-    #     for name, desc in config.gauges_temp_raf_list
-    # )
-
+    #Create a Gauge metric which monitors the platform service
+    platformd_metric = Gauge("platformd_service_status", "Metric to monitor platform service")
+    #Set initial value
+    platformd_metric.set(check_platformd())
 
     #Create a dict type {node,Gauge} (node for each raf board)
     raf_metrics = dict((node.format(raf), Gauge("libera_raf{0}_{1}".format(raf, name), desc))
-
-        for name, desc, node in config.gauges_temp_raf_list
+        #Assign each raf board No to each raf board
+         for name, desc, node in config.gauges_raf_list
             for raf in ["3"]#,"4","5"] #TODO get raf list automatically
-    )
 
-    # #Create Utilities info for metrics
-    # raf_utilities = dict((name, node.format(raf))
-    #     #Later on we can have labels according to each raf module i.e [raf3,ra4,raf5]
-    #     for name in config.gauges_temp_raf_list 
-    #         for raf in ["raf3","raf4","raf5"]
-    # )
-    
-    #print raf_metrics
+            )
+
+    #Create a dict type {node,Gauge} (node for each raf board)
+    board_metrics = dict((node, Gauge("libera_{0}".format(name), desc))
+
+        for name, desc, node in config.gauges_list
+            )
+
+
+    #merge dicts by value type (for platform.GetDouble, platform.GetString etc..)
+    all_metrics = dict(raf_metrics.items() + board_metrics.items())
+
+    #Run main export looop forever!
     while True:
-
         try:
-            for node,metric in raf_metrics.items():
+
+            for node,metric in all_metrics.items():
                 #print node
                 metric.set(platform.GetValue(node))
         except:
+            #print "Unexpected error:", sys.exc_info()[0]
             print('Exception at metric {0}'.format(node))
+            #Check if platformd is down - set the metric accordingly (..and Prometheus will send the alert)
+            platformd_metric.set(check_platformd())
 
         #While delay
         time.sleep(period)
 
+
 if __name__ == '__main__':
+    
     # Start up the server to expose the metrics.
     start_http_server(9110)
+
     #create the pylibera object
     platform = pylibera.PyLiberaClient("127.0.0.1", "platform")
+    
     # Gather metrics
     gather_data(10)
