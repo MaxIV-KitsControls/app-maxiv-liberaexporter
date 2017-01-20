@@ -1,0 +1,5 @@
+python-liberaexporter (0.1.0) unstable; urgency=low
+
+  * Initial release, monitor platform values i.e voltage,current,fans,temperature 
+
+ -- Vasileios Martos <vasileios.martos@maxiv.lu.se>  Thu, 19 Jan 2017 18:47:29 +0100
