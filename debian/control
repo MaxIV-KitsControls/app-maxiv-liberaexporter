@@ -6,5 +6,5 @@ Build-Depends: debhelper,
 
 Package: python-liberaexporter
 Architecture: i386
-Depends: libera-base2.9, libera-mci2.9, python-pylibera
+Depends: python-prometheus-client, python-pylibera
 Description: Simple python interface to connect to Libera devices
