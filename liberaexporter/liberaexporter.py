@@ -26,6 +26,9 @@ def gather_data(period=1):
     Function which inits the metrics and runs the main loop that publishes metrics forever
     """
     # INIT, prepare metric lists to be able to be used by Prometheus
+    
+    #create the pylibera object
+    platform = pylibera.PyLiberaClient(root_type="platform")
 
     #Create a Gauge metric which monitors the platform service
     platformd_metric = Gauge("platformd_service_status", "Metric to monitor platform service")
@@ -57,12 +60,22 @@ def gather_data(period=1):
             for node,metric in all_metrics.items():
                 #print node
                 metric.set(platform.GetValue(node))
-        except:
+        except RuntimeError as e:
+            raise e
+            #print ImportError(e)
             #print "Unexpected error:", sys.exc_info()[0]
-            print('Exception at metric {0}'.format(node))
+            #print('Exception at metric {0}'.format(node))
             #Check if platformd is down - set the metric accordingly (..and Prometheus will send the alert)
+            platform_status = check_platformd()
             platformd_metric.set(check_platformd())
+            # # re init object ?? (or raise exception and exit?)
+            # if platform_status == 1:
+            #     # Maybe check for connection-reconnection
+            #     print("Restarting platform connection") 
+            #     platform.init()
+            #     #platform = pylibera.PyLiberaClient(root_type="platform")
 
+        print("End of parse")
         #While delay
         time.sleep(period)
 
@@ -71,9 +84,6 @@ if __name__ == '__main__':
     
     # Start up the server to expose the metrics.
     start_http_server(9110)
-
-    #create the pylibera object
-    platform = pylibera.PyLiberaClient("127.0.0.1", "platform")
     
     # Gather metrics
     gather_data(10)
