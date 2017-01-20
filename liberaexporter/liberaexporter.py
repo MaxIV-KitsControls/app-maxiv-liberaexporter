@@ -61,21 +61,13 @@ def gather_data(period=1):
                 #print node
                 metric.set(platform.GetValue(node))
         except RuntimeError as e:
-            raise e
-            #print ImportError(e)
-            #print "Unexpected error:", sys.exc_info()[0]
-            #print('Exception at metric {0}'.format(node))
-            #Check if platformd is down - set the metric accordingly (..and Prometheus will send the alert)
+            #Check if platform is still alive
             platform_status = check_platformd()
+            #set the metric (0 or 1)
             platformd_metric.set(check_platformd())
-            # # re init object ?? (or raise exception and exit?)
-            # if platform_status == 1:
-            #     # Maybe check for connection-reconnection
-            #     print("Restarting platform connection") 
-            #     platform.init()
-            #     #platform = pylibera.PyLiberaClient(root_type="platform")
+            #raise exception and exit
+            raise e
 
-        print("End of parse")
         #While delay
         time.sleep(period)
 
