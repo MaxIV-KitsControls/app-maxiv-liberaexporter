@@ -79,11 +79,14 @@ def gather_data(period=1):
         #While delay
         time.sleep(period)
 
-
-if __name__ == '__main__':
-    
+def main():
     # Start up the server to expose the metrics.
     start_http_server(9110)
     
     # Gather metrics
     gather_data(10)
+
+
+if __name__ == '__main__':
+    main()
+    
