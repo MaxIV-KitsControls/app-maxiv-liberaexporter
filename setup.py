@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="python-liberaexporter",
-    version="0.1.0",
+    version="0.2.0",
     description="Prometheus exporter for libera devices.",
     author="Vasileios Martos",
     author_email="vasileios.martos@maxlab.lu.se",
