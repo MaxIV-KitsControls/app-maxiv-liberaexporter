@@ -1,3 +1,9 @@
+python-liberaexporter (0.2.0) unstable; urgency=low
+
+  * Refactor main process, add parsing raf boards function, changing export port to 9232
+
+ -- Vasileios Martos <vasileios.martos@maxiv.lu.se>  Fri, 27 Jan 2017 10:00:00 +0100
+
 python-liberaexporter (0.1.0) unstable; urgency=low
 
   * Initial release, monitor platform values i.e voltage,current,fans,temperature 

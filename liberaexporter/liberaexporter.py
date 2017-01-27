@@ -26,7 +26,7 @@ def getrafboards():
     Returns a list of strings with the numbers of the raf boards (Normally 3-5)
     In case of error raise RuntimeError exception
     """
-    p=subprocess.Popen(["libera-ireg", "dump", "-P", "boards.", "--level=1"], stdout=subprocess.PIPE)
+    p=subprocess.Popen(["/opt/libera/bin/libera-ireg", "dump", "-P", "boards.", "--level=1"], stdout=subprocess.PIPE)
 
     output,err=p.communicate()
 
