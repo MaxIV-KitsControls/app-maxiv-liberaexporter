@@ -102,6 +102,9 @@ def gather_data(period=1):
         time.sleep(period)
 
 def main():
+
+    from datetime import datetime
+    print("{0}: liberaexporter starting..".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     # Start up the server to expose the metrics.
     start_http_server(9232)
     
